@@ -119,6 +119,7 @@ public class ProcedualMesh : MonoBehaviour
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
+        
         return mesh;
     }
 
@@ -129,9 +130,66 @@ public class ProcedualMesh : MonoBehaviour
     }
     private void SpringForce()
     {
-        
+        for (int i = 0; i < clothRes ; i++)
+        {
+            for (int j = 0; j < clothRes; j++)
+            {
+                Vector2 id = new Vector2(i,j);
+                verticesParticles[i, j].force += GetStrechForcesAtVert(id);
+                verticesParticles[i, j].force += GetShearForcesAtVert(id);
+                verticesParticles[i, j].force += GetBendForcesAtVert(id);
+            }
+        }
     }
 
+    private bool isValidID(Vector2 id)
+    {
+        return !(id.x < 0 || id.x >= ((int)clothRes + 1) || id.y < 0 || id.y >= ((int)clothRes + 1));
+    }
+    private Vector3 GetStrechForcesAtVert(Vector2 id)
+    {
+        //up
+        Vector2 id_u = id + new Vector2(0, 1);
+        if (isValidID(id_u))
+        {
+            
+        }
+        //below
+        Vector2 id_b = id + new Vector2(0, -1);
+        if (isValidID(id_b))
+        {
+            
+        }
+        //left
+        Vector2 id_l = id + new Vector2(-1, 0);
+        if (isValidID(id_l))
+        {
+            
+        }
+        //right
+        Vector2 id_r = id + new Vector2(1, 0);
+        if (isValidID(id_r))
+        {
+            
+        }
+        return Vector3.zero;
+    }
+    private Vector3 GetShearForcesAtVert(Vector2 id)
+    {
+        //ul
+        //ur
+        //bl
+        //br
+        return Vector3.zero;
+    }
+    private Vector3 GetBendForcesAtVert(Vector2 id)
+    {
+        //up
+        //below
+        //left
+        //right
+        return Vector3.zero;
+    }
     private void DragForce()
     {
         

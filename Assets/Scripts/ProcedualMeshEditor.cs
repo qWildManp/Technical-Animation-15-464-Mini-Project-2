@@ -4,12 +4,15 @@ using UnityEngine;
 [CustomEditor(typeof(ProcedualMesh))]
 public class ProcedualMeshEditor : Editor
 {
+    
     private bool showMeshProperties = false;
     private SerializedProperty vertices;
+    private SerializedProperty pinedVertices;
     // Start is called before the first frame update
     void OnEnable()
     {
-        vertices = serializedObject.FindProperty("vertices");
+        //vertices = serializedObject.FindProperty("vertices");
+        pinedVertices = serializedObject.FindProperty("pinedVertices");
     }
 
     // Update is called once per frame
@@ -22,7 +25,10 @@ public class ProcedualMeshEditor : Editor
         {
             procedualMesh.clothRes = (int)Mathf.Max(EditorGUILayout.IntField("Cloth Resolution", procedualMesh.clothRes), 1.0f);
             procedualMesh.clothSize = Mathf.Max(EditorGUILayout.FloatField("Cloth Size", procedualMesh.clothSize), 1.0f);
-            EditorGUILayout.PropertyField(vertices, true);
+            //EditorGUILayout.PropertyField(vertices, true);
+            //serializedObject.ApplyModifiedProperties();
+            
+            EditorGUILayout.PropertyField(pinedVertices, true);
             serializedObject.ApplyModifiedProperties();
         }
 

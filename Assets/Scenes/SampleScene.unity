@@ -219,8 +219,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15d7d65f8267448a8045997f5b4c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Worldx: 10
-  Worldz: 10
+  clothRes: 10
+  clothSize: 10
   triangles: 
   vertices:
   - {x: 0, y: 0, z: 0}
@@ -344,6 +344,7 @@ MonoBehaviour:
   - {x: 8, y: 0, z: 10}
   - {x: 9, y: 0, z: 10}
   - {x: 10, y: 0, z: 10}
+  pinedVertices: 000000000a00000011000000
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

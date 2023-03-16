@@ -4,29 +4,50 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+
+
+struct VerticesParticle
+{
+    private static int mass = 1;
+    public Vector3 position;
+    public Vector3 velocity;
+    public Vector3 force;
+
+    public bool pined;
+    
+    //spring property
+    public float strechScale, strechRl, strechKs, strechKd;
+    public float shearScale, shearRl, shearKs, shearKd;
+    public float bendScale, bendRl, bendKs, bendKd;
+}
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class ProcedualMesh : MonoBehaviour
 {
-    //world size
+    //cloth property
     public int clothRes = 1;
     public float clothSize = 1;
     private float segmentLength;
+    //spring property
+    public float strechScale,  strechKs, strechKd;
+    public float shearScale,  shearKs, shearKd;
+    public float bendScale,  bendKs, bendKd;
+
     //generated mesh
     private Mesh _mesh;
     //initilize array to store mesh info
     [SerializeField] private int[] triangles;
     [SerializeField] private Vector3[] vertices;
-    // Start is called before the first frame update
+    [SerializeField] private int[] pinedVertices;
+    
+    // property for simulation
+    private int[] triangleArray;
+    private VerticesParticle[,] verticesParticles;
     private void Awake()
     {
-        
+         _mesh = CreateMesh("Procedual Mesh");
+         GetComponent<MeshFilter>().mesh = _mesh;
     }
-
-    void Start()
-    {
-        _mesh = CreateMesh("Procedual Mesh");
-        GetComponent<MeshFilter>().mesh = _mesh;
-    }
+    
 
     // Update is called once per frame
     void Update()
@@ -38,11 +59,34 @@ public class ProcedualMesh : MonoBehaviour
     {
         segmentLength = clothSize / (float)clothRes;
         vertices = new Vector3[(clothRes+1)*(clothRes+1)];
+        verticesParticles = new VerticesParticle[clothRes+1, clothRes+1];
         for(int i = 0, z = 0; z <= clothRes; z++)//assign vertices
         {
             for(int x = 0; x <= clothRes; x++)
             {
                 vertices[i] = new Vector3(x*segmentLength, 0, z*segmentLength);
+                VerticesParticle vertParticle = new VerticesParticle();
+                vertParticle.position = vertices[i];
+                vertParticle.force = Vector3.zero;
+                vertParticle.velocity = Vector3.zero;
+                
+                vertParticle.strechScale = strechScale;
+                vertParticle.strechRl = segmentLength;
+                vertParticle.strechKd = strechKd;
+                vertParticle.strechKs = strechKs;
+                
+                vertParticle.shearScale = shearScale;
+                vertParticle.shearRl = segmentLength * Mathf.Sqrt(2.0f);
+                vertParticle.shearKd = shearKd;
+                vertParticle.shearKs = shearKs;
+
+                vertParticle.bendScale = bendScale;
+                vertParticle.bendRl = segmentLength * 2;
+                vertParticle.bendKd = bendKd;
+                vertParticle.bendKs = bendKs;
+                
+                
+                verticesParticles[z, x] = new VerticesParticle();
                 i++;
             }
         }
@@ -77,13 +121,31 @@ public class ProcedualMesh : MonoBehaviour
         mesh.RecalculateNormals();
         return mesh;
     }
-    
+
+    private void UpdateSimulation()
+    {
+        SpringForce();
+        DragForce();
+    }
+    private void SpringForce()
+    {
+        
+    }
+
+    private void DragForce()
+    {
+        
+    }
     
     void OnDrawGizmos() { 
         if (vertices != null) {
             for (int i = 0; i < vertices.Length; i++){
+                if (pinedVertices != null && System.Array.Exists(pinedVertices, element => element == i)) {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawSphere(vertices[i], segmentLength*0.25f);
+                }
                 Gizmos.color = Color.white;
-                    Gizmos.DrawSphere(vertices[i], segmentLength*0.125f);
+                Gizmos.DrawSphere(vertices[i], segmentLength*0.125f);
             }
         }
     }

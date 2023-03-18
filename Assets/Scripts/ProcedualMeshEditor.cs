@@ -60,7 +60,7 @@ public class ProcedualMeshEditor : Editor
         }
 
 
-        //procedualMesh.ComputeVertices();
+        procedualMesh.ComputeVertices();
 
         
     }

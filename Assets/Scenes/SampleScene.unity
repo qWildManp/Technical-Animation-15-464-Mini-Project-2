@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 665083339}
   - component: {fileID: 665083338}
   - component: {fileID: 665083341}
+  - component: {fileID: 665083342}
   m_Layer: 0
   m_Name: ProcedualMesh
   m_TagString: Untagged
@@ -221,32 +222,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentTime: 1
   initialized: 1
-  clothRes: 1
+  clothRes: 3
   clothSize: 1
   strechScale: 1
-  strechRl: 0.5
-  strechKs: -10
-  strechKd: -0.1
+  strechRl: 0.33333334
+  strechKs: -1000
+  strechKd: -100
   shearScale: 1
-  shearRl: 0.70710677
-  shearKs: -10
-  shearKd: -0.1
+  shearRl: 0.47140452
+  shearKs: -1000
+  shearKd: -100
   bendScale: 1
-  bendRl: 1
-  bendKs: -10
-  bendKd: -0.1
+  bendRl: 0.6666667
+  bendKs: -1000
+  bendKd: -100
   triangles: 
   vertices:
   - {x: 0, y: 0, z: 0}
-  - {x: 0.5, y: 0, z: 0}
+  - {x: 0.33333334, y: 0, z: 0}
+  - {x: 0.6666667, y: 0, z: 0}
   - {x: 1, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0.5}
-  - {x: 0.5, y: 0, z: 0.5}
-  - {x: 1, y: 0, z: 0.5}
+  - {x: 0, y: 0, z: 0.33333334}
+  - {x: 0.33333334, y: 0, z: 0.33333334}
+  - {x: 0.6666667, y: 0, z: 0.33333334}
+  - {x: 1, y: 0, z: 0.33333334}
+  - {x: 0, y: 0, z: 0.6666667}
+  - {x: 0.33333334, y: 0, z: 0.6666667}
+  - {x: 0.6666667, y: 0, z: 0.6666667}
+  - {x: 1, y: 0, z: 0.6666667}
   - {x: 0, y: 0, z: 1}
-  - {x: 0.5, y: 0, z: 1}
+  - {x: 0.33333334, y: 0, z: 1}
+  - {x: 0.6666667, y: 0, z: 1}
   - {x: 1, y: 0, z: 1}
-  pinedVertices: 0000000001000000
+  pinedVertices: 0000000003000000
+--- !u!114 &665083342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 665083337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ee27ae69e140804ab7a0530e4c27c47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

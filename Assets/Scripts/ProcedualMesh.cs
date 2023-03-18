@@ -28,9 +28,9 @@ public class ProcedualMesh : MonoBehaviour
     public float clothSize = 1;
     private float segmentLength;
     //spring property
-    public float strechScale = 1,strechRl,  strechKs = -10000f, strechKd = -1000f;
-    public float shearScale = 1,shearRl,  shearKs = -10000f , shearKd = -1000f;
-    public float bendScale = 1,bendRl,  bendKs = -10000f, bendKd = -1000f;
+    public float strechScale = 1,strechRl,  strechKs, strechKd;
+    public float shearScale = 1,shearRl,  shearKs, shearKd;
+    public float bendScale = 1,bendRl,  bendKs, bendKd;
 
     //generated mesh
     private Mesh _mesh;
@@ -38,7 +38,9 @@ public class ProcedualMesh : MonoBehaviour
     [SerializeField] private int[] triangles;
     [SerializeField] private Vector3[] vertices;
     [SerializeField] private int[] pinedVertices;
-    
+
+    private int current_loop = 0;
+    private int max_loop = 500;
     // property for simulation
     private int[] triangleArray;
     private VerticesParticle[,] verticesParticles;
@@ -46,17 +48,21 @@ public class ProcedualMesh : MonoBehaviour
     {
 
          ComputeVertices();
-         _mesh = CreateMesh("Procedual Mesh");
+         _mesh = CreateMesh("Procedural Mesh");
          GetComponent<MeshFilter>().mesh = _mesh;
          initialized = true;
     }
-    
+
+    private void Start()
+    {
+        StartCoroutine(UpdateSimulation());
+    }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         currentTime += Time.deltaTime;
-        
+        /*
         if (currentTime >= 0.1f)
         {
             UpdateSimulation();
@@ -64,13 +70,17 @@ public class ProcedualMesh : MonoBehaviour
             _mesh.RecalculateNormals();
             currentTime = 0;
         }
-        
-        /*
-            UpdateSimulation();
-            _mesh.vertices = vertices;
-            _mesh.RecalculateNormals();
-            currentTime = 0;
         */
+
+        if (current_loop >= 500)
+        {
+            current_loop = 0;
+            StartCoroutine(UpdateSimulation());
+        }
+            
+           
+            currentTime = 0;
+        
     }
 
     public void ComputeVertices()
@@ -141,26 +151,38 @@ public class ProcedualMesh : MonoBehaviour
         return mesh;
     }
 
-    private void UpdateSimulation()
+    IEnumerator UpdateSimulation()
     {
-        if (initialized)
-        { 
-            SpringForce();
-            //DragForce();
-            Integrate();
+        Debug.Log("Start New");
+        while (current_loop < max_loop)
+        {
+            Debug.Log("current loop" +  current_loop);
+             if (initialized)
+             { 
+                        SpringForce();
+                        //DragForce();
+                        Integrate();
+             }
+             current_loop += 1;
+             yield return null;
         }
-       
+
+        _mesh.vertices = vertices;
+        _mesh.RecalculateNormals();
+        yield return null;
     }
-    private void SpringForce()
+    
+    private void SpringForce()//compute all the spring force
     {
         for (int i = 0; i <= clothRes; i++)
         {
             for (int j = 0; j <=  clothRes; j++)
             {
+                ;
                 Vector2 id = new Vector2(i,j);
-                Debug.Log("ID" + id);
-                Debug.Log("ID_pos" + verticesParticles[i, j].position);
-                Debug.Log("ID_force" + verticesParticles[i, j].force);
+                //Debug.Log("ID" + id);
+                //Debug.Log("ID_pos" + verticesParticles[i, j].position);
+                //Debug.Log("ID_force" + verticesParticles[i, j].force);
                 verticesParticles[i, j].force += GetStretchForcesAtVert(id);
                 verticesParticles[i, j].force += GetShearForcesAtVert(id);
                 verticesParticles[i, j].force += GetBendForcesAtVert(id);
@@ -175,12 +197,8 @@ public class ProcedualMesh : MonoBehaviour
         return !(id.x < 0 || id.x > ((int)clothRes) || id.y < 0 || id.y > ((int)clothRes));
     }
 
-    private Vector3 GetSpringForce(Vector2 id1, Vector2 id2,float restlength, float ks, float kd)
+    private Vector3 GetSpringForce(Vector2 id1, Vector2 id2,float restlength, float ks, float kd)//get string force of node a from spring node:ab
     {
-        //Debug.Log("id1:" + id1);
-        //Debug.Log("id2:" + id2);
-        //Debug.Log("id_2 ID_pos" + verticesParticles[(int)id2.x, (int)id2.y].position);
-        //Debug.Log("id_2 ID_force" + verticesParticles[(int)id2.x, (int)id2.y].force);
         VerticesParticle a = verticesParticles[(int)id1.x, (int)id1.y];
         
         VerticesParticle b = verticesParticles[(int)id2.x, (int)id2.y];
@@ -198,54 +216,57 @@ public class ProcedualMesh : MonoBehaviour
 
         float distance = Vector3.Distance(aPos, bPos);
         Vector3 forceDir = Vector3.Normalize(bPos - aPos);
+        float tmp0 = restlength;
+        float tmp = segmentLength;
         float tmp1 = ks * (Vector3.Distance(aPos, bPos) - restlength);
+        Debug.Log("Spring Force:" + tmp1);
         float tmp2 = kd * (Vector3.Dot(bVel - aVel, forceDir));
-        
+        Debug.Log("Spring Damp:" + tmp2);
         Vector3 forceWithDamping = -(
             ks * (Vector3.Distance(aPos, bPos) - restlength) +
-            kd * (Vector3.Dot(bVel-aVel,forceDir))) * 
+            kd * (Vector3.Dot(bVel,forceDir) - Vector3.Dot(aVel,forceDir))) * 
             forceDir;
+        Debug.Log("Force Damp:" + forceWithDamping);
         return forceWithDamping;
     }
     //compute stretch Spring Force
-    private Vector3 GetStretchForcesAtVert(Vector2 id)
+    private Vector3 GetStretchForcesAtVert(Vector2 id)//get all stretch spring forces
     {
         Vector3 stretchForce = Vector3.zero;
         //up
         Vector2 id_u = id + new Vector2(0, 1);
-        Debug.Log("id up" + id_u);
         if (isValidID(id_u))
         {
-            Debug.Log("up is valid");
+            //Debug.Log("up is valid");
             stretchForce += GetSpringForce(id, id_u, strechRl, strechKs, strechKd);
         }
         //below
         
-        Vector2 id_b = id + new Vector2(0, -1);Debug.Log("id below" + id_b);
+        Vector2 id_b = id + new Vector2(0, -1);
         if (isValidID(id_b))
         {
-            Debug.Log("below is valid");
+            //Debug.Log("below is valid");
             stretchForce += GetSpringForce(id, id_b, strechRl, strechKs, strechKd);
         }
         //left
         
-        Vector2 id_l = id + new Vector2(-1, 0);Debug.Log("id left" + id_l);
+        Vector2 id_l = id + new Vector2(-1, 0);
         if (isValidID(id_l))
         {
-            Debug.Log("left is valid");
+            //Debug.Log("left is valid");
             stretchForce += GetSpringForce(id, id_l, strechRl, strechKs, strechKd);
         }
         //right
-        Vector2 id_r = id + new Vector2(1, 0);Debug.Log("id right" + id_r);
+        Vector2 id_r = id + new Vector2(1, 0);
         if (isValidID(id_r))
         {
-            Debug.Log("right is valid");
+            //Debug.Log("right is valid");
             
             stretchForce += GetSpringForce(id, id_r, strechRl, strechKs, strechKd);
         }
         return stretchForce;
     }
-    private Vector3 GetShearForcesAtVert(Vector2 id)
+    private Vector3 GetShearForcesAtVert(Vector2 id)//get all shear spring forces
     {
         Vector3 shearForce = Vector3.zero;
         //ul
@@ -275,7 +296,7 @@ public class ProcedualMesh : MonoBehaviour
         }
         return shearForce;
     }
-    private Vector3 GetBendForcesAtVert(Vector2 id)
+    private Vector3 GetBendForcesAtVert(Vector2 id)//get all bend spring forces
     {
         Vector3 bendForce = Vector3.zero;
 
@@ -323,8 +344,8 @@ public class ProcedualMesh : MonoBehaviour
                 Vector3 a = g + (vp.force/ vp.mass);
                 if (!vp.pined)
                 {
-                    verticesParticles[i, j].position += vp.velocity * Time.fixedDeltaTime;
-                    verticesParticles[i, j].velocity += a * Time.fixedDeltaTime;
+                    verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/max_loop);
+                    verticesParticles[i, j].velocity += a * (Time.deltaTime/max_loop);
                     vertices[vp.gloableIdx] = verticesParticles[i, j].position;
                 }
             }

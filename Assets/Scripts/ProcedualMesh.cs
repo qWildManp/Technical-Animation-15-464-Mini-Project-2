@@ -12,6 +12,7 @@ struct VerticesParticle
     public int gloableIdx;
     public float mass;
     public Vector3 position;
+    public Vector3 pre_position;
     public Vector3 velocity;
     public Vector3 force;
     
@@ -31,7 +32,10 @@ public class ProcedualMesh : MonoBehaviour
     public float strechScale = 1,strechRl,  strechKs, strechKd;
     public float shearScale = 1,shearRl,  shearKs, shearKd;
     public float bendScale = 1,bendRl,  bendKs, bendKd;
-
+    //integrator property
+    public bool is_euler;
+    public bool is_semiimplecit_euler;
+    public bool is_verlet ;
     //generated mesh
     private Mesh _mesh;
     //initilize array to store mesh info
@@ -55,33 +59,36 @@ public class ProcedualMesh : MonoBehaviour
 
     private void Start()
     {
+        //InvokeRepeating("UpdateSimulation",.01f,0.1f);
+        //StartCoroutine(UpdateSimulateCo());
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-        currentTime += Time.deltaTime;
-        /*
-        if (currentTime >= 0.5f)
-        {
-            UpdateSimulation();
-            _mesh.vertices = vertices;
-            _mesh.RecalculateNormals();
-            currentTime = 0;
-        }
-        */
-        /*
-        if (current_loop >= 500)
-        {
-            current_loop = 0;
-            StartCoroutine(UpdateSimulation());
-        }
-         */   
-           UpdateSimulation();
+        UpdateSimulation();
             //currentTime = 0;
         
     }
 
+    IEnumerator UpdateSimulateCo()
+    {
+        while (true)
+        {
+            SpringForce();
+            Integrate();
+            current_loop += 1;
+            if (current_loop > 10)
+            {
+                _mesh.vertices = vertices;
+                _mesh.RecalculateNormals();
+                yield return null;
+                current_loop = 0;
+            }
+           
+        }
+        
+    }
     public void ComputeVertices()
     {
         segmentLength = clothSize / (float)clothRes;
@@ -99,6 +106,7 @@ public class ProcedualMesh : MonoBehaviour
                     vertParticle.gloableIdx = i;
                     vertParticle.mass = 1f;
                     vertParticle.position = vertices[i];
+                    vertParticle.pre_position = vertices[i];
                     vertParticle.force = Vector3.zero;
                     vertParticle.velocity = Vector3.zero;
                     //check if this particle is pinned
@@ -149,28 +157,6 @@ public class ProcedualMesh : MonoBehaviour
         
         return mesh;
     }
-/*
-    IEnumerator UpdateSimulation()
-    {
-        Debug.Log("Start New");
-        while (current_loop < max_loop)
-        {
-            Debug.Log("current loop" +  current_loop);
-             if (initialized)
-             { 
-                        SpringForce();
-                        //DragForce();
-                        Integrate();
-             }
-             current_loop += 1;
-             yield return null;
-        }
-
-        _mesh.vertices = vertices;
-        _mesh.RecalculateNormals();
-        yield return null;
-    }
-*/
     private void UpdateSimulation()
     {
         SpringForce();
@@ -188,27 +174,29 @@ public class ProcedualMesh : MonoBehaviour
                 ;
                 Vector2 id = new Vector2(i,j);
                 //Debug.Log("ID" + id);
+                Vector3 new_force = GetStretchForcesAtVert(i, j)
+                                    + GetShearForcesAtVert(i, j) 
+                                    + GetBendForcesAtVert(i, j);
                 //Debug.Log("ID_pos" + verticesParticles[i, j].position);
                 //Debug.Log("ID_force" + verticesParticles[i, j].force);
-                verticesParticles[i, j].force = GetStretchForcesAtVert(id);
-                verticesParticles[i, j].force += GetShearForcesAtVert(id);
-                verticesParticles[i, j].force += GetBendForcesAtVert(id);
+                verticesParticles[i, j].force = new_force;
+                //IntegrateSingle(i,j);
             }
         }
         
         
     }
 
-    private bool isValidID(Vector2 id)
+    private bool isValidID(int p_x,int p_z)
     {
-        return !(id.x < 0 || id.x > ((int)clothRes) || id.y < 0 || id.y > ((int)clothRes));
+        return !(p_x < 0 || p_x > ((int)clothRes) || p_z < 0 || p_z > ((int)clothRes));
     }
 
-    private Vector3 GetSpringForce(Vector2 id1, Vector2 id2,float restlength, float ks, float kd)//get string force of node a from spring node:ab
+    private Vector3 GetSpringForce(int pa_x,int pa_z,int pb_x,int pb_z,float restlength, float ks, float kd)//get string force of node a from spring node:ab
     {
-        VerticesParticle a = verticesParticles[(int)id1.x, (int)id1.y];
+        VerticesParticle a = verticesParticles[pa_x, pa_z];
         
-        VerticesParticle b = verticesParticles[(int)id2.x, (int)id2.y];
+        VerticesParticle b = verticesParticles[pb_x, pb_z];
 
         Vector3 aPos = a.position;
         Vector3 bPos = b.position;
@@ -237,102 +225,116 @@ public class ProcedualMesh : MonoBehaviour
         return forceWithDamping;
     }
     //compute stretch Spring Force
-    private Vector3 GetStretchForcesAtVert(Vector2 id)//get all stretch spring forces
+    private Vector3 GetStretchForcesAtVert(int pa_x,int pa_z)//get all stretch spring forces
     {
         Vector3 stretchForce = Vector3.zero;
         //up
-        Vector2 id_u = id + new Vector2(0, 1);
-        if (isValidID(id_u))
+        int pu_x = pa_x;
+        int pu_z = pa_z + 1;
+        if (isValidID(pu_x,pu_z))
         {
             //Debug.Log("Force up is valid");
-            stretchForce += GetSpringForce(id, id_u, strechRl, strechKs, strechKd);
+            stretchForce += GetSpringForce(pa_x, pa_z,pu_x,pu_z, strechRl, strechKs, strechKd);
         }
         //below
         
-        Vector2 id_b = id + new Vector2(0, -1);
-        if (isValidID(id_b))
+        int pb_x = pa_x;
+        int pb_z = pa_z - 1;
+        if (isValidID(pb_x,pb_z))
         {
             //Debug.Log("Force below is valid");
-            stretchForce += GetSpringForce(id, id_b, strechRl, strechKs, strechKd);
+            stretchForce += GetSpringForce(pa_x, pa_z, pb_x, pb_z, strechRl, strechKs, strechKd);
         }
         //left
-        
-        Vector2 id_l = id + new Vector2(-1, 0);
-        if (isValidID(id_l))
+        int pl_x = pa_x - 1;
+        int pl_z = pa_z;
+        if (isValidID(pl_x,pl_z))
         {
             //Debug.Log("Force left is valid");
-            stretchForce += GetSpringForce(id, id_l, strechRl, strechKs, strechKd);
+            stretchForce += GetSpringForce(pa_x,pa_z,pl_x,pl_z, strechRl, strechKs, strechKd);
         }
         //right
-        Vector2 id_r = id + new Vector2(1, 0);
-        if (isValidID(id_r))
+        int pr_x = pa_x + 1;
+        int pr_z = pa_z;
+        if (isValidID(pr_x,pr_z))
         {
             //Debug.Log("Force right is valid");
             
-            stretchForce += GetSpringForce(id, id_r, strechRl, strechKs, strechKd);
+            stretchForce += GetSpringForce(pa_x,pa_z,pr_x,pr_z, strechRl, strechKs, strechKd);
         }
         return stretchForce;
     }
-    private Vector3 GetShearForcesAtVert(Vector2 id)//get all shear spring forces
+    
+    private Vector3 GetShearForcesAtVert(int pa_x,int pa_z)//get all shear spring forces
     {
         Vector3 shearForce = Vector3.zero;
         //ul
-        Vector2 id_ul = id + new Vector2(-1, 1);
-
-        if (isValidID(id_ul))
+        int pul_x = pa_x - 1;
+        int pul_z = pa_z + 1;
+        if (isValidID(pul_x,pul_z))
         {
-            shearForce += GetSpringForce(id, id_ul, shearRl, shearKs, shearKd);
+            shearForce += GetSpringForce(pa_x,pa_z,pul_x,pul_z, shearRl, shearKs, shearKd);
         }
         //ur
-        Vector2 id_ur = id + new Vector2(1, 1);
-        if (isValidID(id_ur))
+        int pur_x = pa_x + 1;
+        int pur_z = pa_z + 1;
+        if (isValidID(pur_x,pur_z))
         {
-            shearForce += GetSpringForce(id, id_ur, shearRl, shearKs, shearKd);
+            shearForce += GetSpringForce(pa_x,pa_z,pur_x,pur_z, shearRl, shearKs, shearKd);
         }
         //bl
-        Vector2 id_bl = id + new Vector2(-1, -1);
-        if (isValidID(id_bl))
+        int pbl_x = pa_x - 1;
+        int pbl_z = pa_z - 1;
+        if (isValidID(pbl_x,pbl_z))
         {
-            shearForce += GetSpringForce(id, id_bl, shearRl, shearKs, shearKd);
+            shearForce += GetSpringForce(pa_x,pa_z,pbl_x,pbl_z, shearRl, shearKs, shearKd);
         }
         //br
-        Vector2 id_br = id + new Vector2(1, -1);
-        if (isValidID(id_br))
+        int pbr_x = pa_x - 1;
+        int pbr_z = pa_z + 1;
+        if (isValidID(pbr_x,pbr_z))
         {
-            shearForce += GetSpringForce(id, id_br, shearRl, shearKs, shearKd);
+            shearForce += GetSpringForce(pa_x,pa_z,pbr_x,pbr_z, shearRl, shearKs, shearKd);
         }
         return shearForce;
     }
-    private Vector3 GetBendForcesAtVert(Vector2 id)//get all bend spring forces
+    private Vector3 GetBendForcesAtVert(int pa_x,int pa_z)//get all bend spring forces
     {
         Vector3 bendForce = Vector3.zero;
-
-        
         //up
-        Vector2 id_ub = id + new Vector2(0, 2);
-        if (isValidID(id_ub))
+        int pu_x = pa_x;
+        int pu_z = pa_z + 2;
+        if (isValidID(pu_x,pu_z))
         {
-            bendForce += GetSpringForce(id, id_ub, bendRl, bendKs, bendKd);
+            //Debug.Log("Force up is valid");
+            bendForce += GetSpringForce(pa_x, pa_z,pu_x,pu_z, bendRl, bendKs, bendKd);
         }
         //below
-        Vector2 id_bb = id + new Vector2(0, -2);
-        if (isValidID(id_bb))
+        
+        int pb_x = pa_x;
+        int pb_z = pa_z - 2;
+        if (isValidID(pb_x,pb_z))
         {
-            bendForce += GetSpringForce(id, id_bb, bendRl, bendKs, bendKd);
+            //Debug.Log("Force below is valid");
+            bendForce += GetSpringForce(pa_x, pa_z,pb_x,pb_z, bendRl, bendKs, bendKd);
         }
         //left
-        Vector2 id_lb = id + new Vector2(-2, 0);
-        if (isValidID(id_lb))
+        int pl_x = pa_x - 2;
+        int pl_z = pa_z;
+        if (isValidID(pl_x,pl_z))
         {
-            bendForce += GetSpringForce(id, id_lb, bendRl, bendKs, bendKd);
+            //Debug.Log("Force left is valid");
+            bendForce += GetSpringForce(pa_x,pa_z,pl_x,pl_z, bendRl, bendKs, bendKd);
         }
         //right
-        Vector2 id_rb = id + new Vector2(2, 0);
-        if (isValidID(id_rb))
+        int pr_x = pa_x + 2;
+        int pr_z = pa_z;
+        if (isValidID(pr_x,pr_z))
         {
-            bendForce += GetSpringForce(id, id_rb, bendRl, bendKs, bendKd);
+            //Debug.Log("Force right is valid");
+            
+            bendForce += GetSpringForce(pa_x,pa_z,pr_x,pr_z, bendRl, bendKs, bendKd);
         }
-        
         return bendForce;
     }
     private void DragForce()
@@ -351,20 +353,35 @@ public class ProcedualMesh : MonoBehaviour
                 Vector3 a = g + (vp.force/ vp.mass);
                 if (!vp.pined)
                 {
-                    verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/10);
-                    verticesParticles[i, j].velocity += a * (Time.deltaTime/10);
-                    Debug.Log("Calculated location" +  "(" +i + j +")"+verticesParticles[i, j].position);
-                    Debug.Log("Calculated velocity" + verticesParticles[i, j].velocity);
+                    if (is_euler)
+                    {
+                         verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/10);
+                         verticesParticles[i, j].velocity += a * (Time.deltaTime/10);
+                         //Debug.Log("Calculated location" +  "(" +i + j +")"+verticesParticles[i, j].position);
+                         //Debug.Log("Calculated velocity" + verticesParticles[i, j].velocity);
+                    }
+                    else if (is_semiimplecit_euler)
+                    {
+                        verticesParticles[i, j].velocity += a * (Time.deltaTime/10);
+                        verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/10);
+                    }
+                    else if (is_verlet)
+                    {
+
+                        verticesParticles[i, j].position = 2 * verticesParticles[i, j].position -
+                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/5 ) * (Time.deltaTime/5 );
+                        verticesParticles[i, j].pre_position = verticesParticles[i, j].position;
+                    }
                     vertices[vp.gloableIdx] = verticesParticles[i, j].position;
                 }
             }
         }
     }
-
     public bool WasSuccessfullyInitialized()
     {
         return initialized;
     }
+    /*
     void OnDrawGizmos() { 
         if (vertices != null) {
             for (int i = 0; i < vertices.Length; i++){
@@ -378,4 +395,5 @@ public class ProcedualMesh : MonoBehaviour
         }
         
     }
+    */
 }

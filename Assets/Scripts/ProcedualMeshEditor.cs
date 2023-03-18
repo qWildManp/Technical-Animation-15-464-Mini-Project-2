@@ -57,10 +57,14 @@ public class ProcedualMeshEditor : Editor
             EditorGUILayout.Foldout(true, "Bend Spring Properties", true);
             procedualMesh.bendKs = Mathf.Min(EditorGUILayout.FloatField("Bend Spring Constant (ks)", procedualMesh.bendKs), 10000f);
             procedualMesh.bendKd = Mathf.Min(EditorGUILayout.FloatField("Damping Constant (kd)", procedualMesh.bendKd), 1000f);
+
+            procedualMesh.is_euler = EditorGUILayout.Toggle("Euler",procedualMesh.is_euler);
+            procedualMesh.is_semiimplecit_euler = EditorGUILayout.Toggle("Semi Implicit Euler",procedualMesh.is_semiimplecit_euler);
+            procedualMesh.is_verlet = EditorGUILayout.Toggle("Verlet",procedualMesh.is_verlet);
         }
 
 
-        procedualMesh.ComputeVertices();
+        //procedualMesh.ComputeVertices();
 
         
     }

@@ -355,21 +355,21 @@ public class ProcedualMesh : MonoBehaviour
                 {
                     if (is_euler)
                     {
-                         verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/10);
-                         verticesParticles[i, j].velocity += a * (Time.deltaTime/10);
+                         verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/50);
+                         verticesParticles[i, j].velocity += a * (Time.deltaTime/50);
                          //Debug.Log("Calculated location" +  "(" +i + j +")"+verticesParticles[i, j].position);
                          //Debug.Log("Calculated velocity" + verticesParticles[i, j].velocity);
                     }
                     else if (is_semiimplecit_euler)
                     {
-                        verticesParticles[i, j].velocity += a * (Time.deltaTime/10);
-                        verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/10);
+                        verticesParticles[i, j].velocity += a * (Time.deltaTime/50);
+                        verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/50);
                     }
                     else if (is_verlet)
                     {
 
                         verticesParticles[i, j].position = 2 * verticesParticles[i, j].position -
-                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/2 ) * (Time.deltaTime/2 );
+                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/4.5f) * (Time.deltaTime/4.5f);
                         verticesParticles[i, j].pre_position = verticesParticles[i, j].position;
                     }
                     vertices[vp.gloableIdx] = verticesParticles[i, j].position;

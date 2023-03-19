@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!33 &665083338
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -225,16 +225,16 @@ MonoBehaviour:
   clothSize: 1
   strechScale: 1
   strechRl: 0.16666667
-  strechKs: -700
-  strechKd: -70
+  strechKs: -1000
+  strechKd: -100
   shearScale: 1
   shearRl: 0.23570226
-  shearKs: -700
-  shearKd: -70
+  shearKs: -1000
+  shearKd: -100
   bendScale: 1
   bendRl: 0.33333334
-  bendKs: -700
-  bendKd: -70
+  bendKs: -1000
+  bendKd: -100
   is_euler: 1
   is_semiimplecit_euler: 0
   is_verlet: 0
@@ -676,12 +676,12 @@ MonoBehaviour:
   strechKd: -100
   shearScale: 1
   shearRl: 0.23570226
-  shearKs: -700
-  shearKd: -70
+  shearKs: -1000
+  shearKd: -100
   bendScale: 1
   bendRl: 0.33333334
-  bendKs: -700
-  bendKd: -70
+  bendKs: -1000
+  bendKd: -100
   is_euler: 0
   is_semiimplecit_euler: 0
   is_verlet: 1

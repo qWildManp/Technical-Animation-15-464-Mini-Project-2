@@ -369,7 +369,7 @@ public class ProcedualMesh : MonoBehaviour
                     {
 
                         verticesParticles[i, j].position = 2 * verticesParticles[i, j].position -
-                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/2) * (Time.deltaTime/2);
+                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/1.5f) * (Time.deltaTime/1.5f);
                         verticesParticles[i, j].pre_position = verticesParticles[i, j].position;
                     }
                     vertices[vp.gloableIdx] = verticesParticles[i, j].position;

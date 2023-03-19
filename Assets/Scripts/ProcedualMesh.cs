@@ -64,7 +64,7 @@ public class ProcedualMesh : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         UpdateSimulation();
             //currentTime = 0;
@@ -110,7 +110,7 @@ public class ProcedualMesh : MonoBehaviour
                     vertParticle.force = Vector3.zero;
                     vertParticle.velocity = Vector3.zero;
                     //check if this particle is pinned
-                    Debug.Log("vertice pos:" + vertParticle.position + "idx:(" + z + "," + x + ")");
+                    //Debug.Log("vertice pos:" + vertParticle.position + "idx:(" + z + "," + x + ")");
                     if (System.Array.Exists(pinedVertices, element => element == i))
                     {
                         vertParticle.pined = true;
@@ -214,14 +214,14 @@ public class ProcedualMesh : MonoBehaviour
         float tmp0 = restlength;
         float tmp = segmentLength;
         float tmp1 = ks * (Vector3.Distance(aPos, bPos) - restlength);
-        Debug.Log("Spring Force:" + tmp1);
+        //Debug.Log("Spring Force:" + tmp1);
         float tmp2 = kd * (Vector3.Dot(bVel - aVel, forceDir));
-        Debug.Log("Spring Damp:" + tmp2);
+        //Debug.Log("Spring Damp:" + tmp2);
         Vector3 forceWithDamping = -(
             ks * (Vector3.Distance(aPos, bPos) - restlength) +
             kd * (Vector3.Dot(bVel,forceDir) - Vector3.Dot(aVel,forceDir))) * 
             forceDir;
-        Debug.Log("Force Damp:" + forceWithDamping);
+        //Debug.Log("Force Damp:" + forceWithDamping);
         return forceWithDamping;
     }
     //compute stretch Spring Force
@@ -355,21 +355,21 @@ public class ProcedualMesh : MonoBehaviour
                 {
                     if (is_euler)
                     {
-                         verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/50);
-                         verticesParticles[i, j].velocity += a * (Time.deltaTime/50);
+                         verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/10);
+                         verticesParticles[i, j].velocity += a * (Time.deltaTime/10);
                          //Debug.Log("Calculated location" +  "(" +i + j +")"+verticesParticles[i, j].position);
                          //Debug.Log("Calculated velocity" + verticesParticles[i, j].velocity);
                     }
                     else if (is_semiimplecit_euler)
                     {
-                        verticesParticles[i, j].velocity += a * (Time.deltaTime/50);
-                        verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/50);
+                        verticesParticles[i, j].velocity += a * (Time.deltaTime/10);
+                        verticesParticles[i, j].position += vp.velocity * (Time.deltaTime/10);
                     }
                     else if (is_verlet)
                     {
 
                         verticesParticles[i, j].position = 2 * verticesParticles[i, j].position -
-                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/4.5f) * (Time.deltaTime/4.5f);
+                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/2) * (Time.deltaTime/2);
                         verticesParticles[i, j].pre_position = verticesParticles[i, j].position;
                     }
                     vertices[vp.gloableIdx] = verticesParticles[i, j].position;

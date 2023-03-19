@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 665083339}
   - component: {fileID: 665083338}
   - component: {fileID: 665083341}
-  - component: {fileID: 665083342}
   m_Layer: 0
   m_Name: ProcedualMesh_explicit euler
   m_TagString: Untagged
@@ -222,20 +221,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentTime: 1
   initialized: 1
-  clothRes: 6
+  clothRes: 10
   clothSize: 1
   strechScale: 1
   strechRl: 0.16666667
-  strechKs: -1000
-  strechKd: -100
+  strechKs: -700
+  strechKd: -70
   shearScale: 1
   shearRl: 0.23570226
-  shearKs: -1000
-  shearKd: -100
+  shearKs: -700
+  shearKd: -70
   bendScale: 1
   bendRl: 0.33333334
-  bendKs: -1000
-  bendKd: -100
+  bendKs: -700
+  bendKd: -70
   is_euler: 1
   is_semiimplecit_euler: 0
   is_verlet: 0
@@ -290,19 +289,7 @@ MonoBehaviour:
   - {x: 0.6666667, y: 0, z: 1}
   - {x: 0.8333334, y: 0, z: 1}
   - {x: 1, y: 0, z: 1}
-  pinedVertices: 000000000300000006000000
---- !u!114 &665083342
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665083337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ee27ae69e140804ab7a0530e4c27c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  pinedVertices: 00000000050000000a000000
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -493,7 +480,6 @@ GameObject:
   - component: {fileID: 1204757992}
   - component: {fileID: 1204757991}
   - component: {fileID: 1204757990}
-  - component: {fileID: 1204757989}
   m_Layer: 0
   m_Name: ProcedualMesh_semiimplicit euler
   m_TagString: Untagged
@@ -501,18 +487,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1204757989
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1204757988}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ee27ae69e140804ab7a0530e4c27c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1204757990
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -673,7 +647,6 @@ GameObject:
   - component: {fileID: 2127566413}
   - component: {fileID: 2127566412}
   - component: {fileID: 2127566411}
-  - component: {fileID: 2127566410}
   m_Layer: 0
   m_Name: ProcedualMesh_verlet
   m_TagString: Untagged
@@ -681,18 +654,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2127566410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2127566409}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ee27ae69e140804ab7a0530e4c27c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2127566411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -707,7 +668,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentTime: 1
   initialized: 1
-  clothRes: 6
+  clothRes: 10
   clothSize: 1
   strechScale: 1
   strechRl: 0.16666667
@@ -715,12 +676,12 @@ MonoBehaviour:
   strechKd: -100
   shearScale: 1
   shearRl: 0.23570226
-  shearKs: -1000
-  shearKd: -100
+  shearKs: -700
+  shearKd: -70
   bendScale: 1
   bendRl: 0.33333334
-  bendKs: -1000
-  bendKd: -100
+  bendKs: -700
+  bendKd: -70
   is_euler: 0
   is_semiimplecit_euler: 0
   is_verlet: 1
@@ -775,7 +736,7 @@ MonoBehaviour:
   - {x: 0.6666667, y: 0, z: 1}
   - {x: 0.8333334, y: 0, z: 1}
   - {x: 1, y: 0, z: 1}
-  pinedVertices: 000000000300000006000000
+  pinedVertices: 00000000050000000a000000
 --- !u!33 &2127566412
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -369,7 +369,7 @@ public class ProcedualMesh : MonoBehaviour
                     {
 
                         verticesParticles[i, j].position = 2 * verticesParticles[i, j].position -
-                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/5 ) * (Time.deltaTime/5 );
+                            verticesParticles[i, j].pre_position + a * (Time.deltaTime/2 ) * (Time.deltaTime/2 );
                         verticesParticles[i, j].pre_position = verticesParticles[i, j].position;
                     }
                     vertices[vp.gloableIdx] = verticesParticles[i, j].position;
@@ -381,19 +381,19 @@ public class ProcedualMesh : MonoBehaviour
     {
         return initialized;
     }
-    /*
+    
     void OnDrawGizmos() { 
         if (vertices != null) {
             for (int i = 0; i < vertices.Length; i++){
                 if (pinedVertices != null && System.Array.Exists(pinedVertices, element => element == i)) {
                     Gizmos.color = Color.red;
-                    Gizmos.DrawSphere(vertices[i], segmentLength*0.25f);
+                    Gizmos.DrawSphere(vertices[i] + transform.position, segmentLength*0.25f);
                 }
                 Gizmos.color = Color.white;
-                Gizmos.DrawSphere(vertices[i], segmentLength*0.125f);
+                Gizmos.DrawSphere(vertices[i] +  transform.position, segmentLength*0.125f);
             }
         }
         
     }
-    */
+    
 }

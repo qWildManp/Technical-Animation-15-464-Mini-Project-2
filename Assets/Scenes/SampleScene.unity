@@ -501,7 +501,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentTime: 1
   initialized: 1
-  clothRes: 6
+  clothRes: 10
   clothSize: 1
   strechScale: 1
   strechRl: 0.16666667
@@ -569,7 +569,7 @@ MonoBehaviour:
   - {x: 0.6666667, y: 0, z: 1}
   - {x: 0.8333334, y: 0, z: 1}
   - {x: 1, y: 0, z: 1}
-  pinedVertices: 000000000300000006000000
+  pinedVertices: 00000000050000000a000000
 --- !u!33 &1204757991
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -598,7 +598,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a93c7d48beec72743813eba9a8f5aa09, type: 2}
+  - {fileID: 2100000, guid: 4ed4ba1c3f0d48f4daf0d8a820afa41d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -765,7 +765,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a93c7d48beec72743813eba9a8f5aa09, type: 2}
+  - {fileID: 2100000, guid: cca591c9f5879b243a90655c2f78f2fc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
